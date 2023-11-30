@@ -27,7 +27,10 @@ runs:
     - name: Set Docker Image Name
       id: set-image-name
       run: |
+        # generate docker image name
         echo "DOCKER_IMAGE_NAME=alvedocker/${{ env.branch }}_${{ env.repo }}:${{ github.sha }}" >> $GITHUB_ENV
+        # convert name to lowercase
+        echo "DOCKER_IMAGE_NAME=$(echo $DOCKER_IMAGE_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       shell: bash
 
     - name: Log in to Docker Hub
