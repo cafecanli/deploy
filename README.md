@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build and Push Docker Image
-        uses: alve-dev/alve-build-apps@v1.0.0
+        uses: Alve-Development/alve-build-apps@v1.0.0
         with:
           docker-username: ${{ secrets.DOCKER_HUB_USERNAME }}
           docker-password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
