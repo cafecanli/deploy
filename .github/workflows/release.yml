@@ -1,5 +1,9 @@
 name: Release on Any Branch Push
+
 on: push
+
+permissions:
+  contents: write
 
 jobs:
   build-and-release:
