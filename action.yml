@@ -65,7 +65,7 @@ runs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ inputs.DOCKER_IMAGE_NAME }}
+        tags: ${{ env.DOCKER_IMAGE_NAME }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
         builder: ${{ steps.setup-buildx.outputs.name }}
@@ -77,5 +77,5 @@ runs:
       shell: bash
 
     - name: Set DOCKER_IMAGE_NAME output
-      run: echo "docker-image-name=${{ inputs.DOCKER_IMAGE_NAME }}" >> $GITHUB_ENV
+      run: echo "docker-image-name=${{ env.DOCKER_IMAGE_NAME }}" >> $GITHUB_ENV
       shell: bash
