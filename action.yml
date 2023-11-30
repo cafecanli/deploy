@@ -1,15 +1,24 @@
 name: "Custom Docker Build and Push"
 description: "Build and push Docker images with caching"
 inputs:
-  env-file:
-    description: ".env file contents"
-    required: false
+  repo:
+    description: "Repository name"
+    required: true
+  branch:
+    description: "Branch name"
+    required: true
+  commit-hash:
+    description: "Commit hash"
+    required: true
   docker-username:
     description: "Docker Hub username"
     required: true
   docker-password:
     description: "Docker Hub password"
     required: true
+  env-file:
+    description: ".env file contents"
+    required: false
 
 outputs:
   docker-image-name:
@@ -17,9 +26,6 @@ outputs:
 
 runs:
   using: "composite"
-  env:
-    repo: ${{ github.event.repository.name }}
-    branch: ${{ github.head_ref || github.ref_name }}
   steps:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
@@ -28,7 +34,7 @@ runs:
       id: set-image-name
       run: |
         # generate docker image name
-        echo "DOCKER_IMAGE_NAME=alvedocker/${{ env.branch }}_${{ env.repo }}:${{ github.sha }}" >> $GITHUB_ENV
+        echo "DOCKER_IMAGE_NAME=${{ inputs.docker-username }}/${{ inputs.branch }}_${{ inputs.repo }}:${{ inputs.commit-hash }}" >> $GITHUB_ENV
         # convert name to lowercase
         echo "DOCKER_IMAGE_NAME=$(echo $DOCKER_IMAGE_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       shell: bash
@@ -43,12 +49,12 @@ runs:
       uses: actions/cache@v2
       with:
         path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        key: ${{ runner.os }}-buildx-${{ inputs.commit-hash }}
         restore-keys: |
           ${{ runner.os }}-buildx-
 
     - name: Copy .env file contents
-      if: inputs.env-file
+      if: input.env-file
       run: |
         echo "${{ inputs.env-file }}" > .env
 
@@ -58,7 +64,7 @@ runs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ env.DOCKER_IMAGE_NAME }}
+        tags: ${{ inputs.DOCKER_IMAGE_NAME }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
         builder: ${{ steps.setup-buildx.outputs.name }}
@@ -70,8 +76,5 @@ runs:
       shell: bash
 
     - name: Set DOCKER_IMAGE_NAME output
-      run: echo "docker-image-name=${{ env.DOCKER_IMAGE_NAME }}" >> $GITHUB_ENV
+      run: echo "docker-image-name=${{ inputs.DOCKER_IMAGE_NAME }}" >> $GITHUB_ENV
       shell: bash
-
-  outputs:
-    changed: ${{ steps.changed.outputs.changed }}
