@@ -54,9 +54,10 @@ runs:
           ${{ runner.os }}-buildx-
 
     - name: Copy .env file contents
-      if: input.env-file
+      if: inputs.env-file
       run: |
         echo "${{ inputs.env-file }}" > .env
+      shell: bash
 
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v2
