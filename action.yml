@@ -31,14 +31,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Set Repo Name
-      id: set-repo-name
-      run: |
-        REPO_NAME=${{ inputs.repo }}
-        REPO_NAME=$(echo $REPO_NAME | tr '[:upper:]' '[:lower:]')
-        echo "::set-output name=repo-name::$REPO_NAME"
-      shell: bash
-
     - name: Setup SSH
       run: |
         mkdir -p ~/.ssh
@@ -57,8 +49,8 @@ runs:
       run: |
         git clone -b ${{ inputs.branch }} ${{ inputs.fleet-repo}}
         cd ${{ inputs.fleet-path}}
-        sed -i "/${{ steps.set-repo-name.outputs.repo-name }}:/ { n; s/.*/  imageTag: \"${{ inputs.commit-hash }}\"/; }" ${{ inputs.fleet-values-path}}
+        sed -i "/${{ inputs.repo }}:/ { n; s/.*/  imageTag: \"${{ inputs.commit-hash }}\"/; }" ${{ inputs.fleet-values-path}}
         git add .
-        git commit -m "Update ${{ steps.set-repo-name.outputs.repo-name }} version to ${{ inputs.commit-hash }}"
+        git commit -m "Update ${{ inputs.repo }} version to ${{ inputs.commit-hash }}"
         git push origin ${{ inputs.branch }}
       shell: bash
