@@ -1,5 +1,5 @@
-name: "Custom Docker Build and Push"
-description: "Build and push Docker images with caching"
+name: "Custom Deploy In Kubernates"
+description: "Deploy to Dev Cluster"
 inputs:
   repo:
     description: "Repository name"
@@ -10,63 +10,55 @@ inputs:
   commit-hash:
     description: "Commit hash"
     required: true
-  docker-username:
-    description: "Docker Hub username"
+  private-key:
+    description: "Ssh private key"
     required: true
-  docker-password:
-    description: "Docker Hub password"
+  git-username:
+    description: "Git username"
     required: true
-  env-file:
-    description: ".env file contents"
-    required: false
-
+  git-email:
+    description: "Git e-mail"
+    required: true
+  fleet-repo:
+    description: "Fleet repo"
+    required: true
+  fleet-path:
+    description: "Fleet path"
+    required: true
+  fleet-values-path:
+    description: "Fleet values.yaml path"
+    required: true
 runs:
   using: "composite"
   steps:
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Set Docker Image Name
-      id: set-image-name
+    - name: Set Repo Name
+      id: set-repo-name
       run: |
-        DOCKER_IMAGE_NAME="${{ inputs.docker-username }}/${{ inputs.branch }}_${{ inputs.repo }}:${{ inputs.commit-hash }}"
-        DOCKER_IMAGE_NAME=$(echo $DOCKER_IMAGE_NAME | tr '[:upper:]' '[:lower:]')
-        echo "::set-output name=image-name::$DOCKER_IMAGE_NAME"
+        REPO_NAME=${{ inputs.repo }}
+        REPO_NAME=$(echo $REPO_NAME | tr '[:upper:]' '[:lower:]')
+        echo "::set-output name=repo-name::$REPO_NAME"
       shell: bash
 
-    - name: Log in to Docker Hub
-      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
-      with:
-        username: ${{ inputs.docker-username }}
-        password: ${{ inputs.docker-password }}
-
-    - name: Cache Docker layers
-      uses: actions/cache@v2
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ inputs.commit-hash }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
-
-    - name: Copy .env file contents
-      if: inputs.env-file
+    - name: Setup SSH
       run: |
-        echo "${{ inputs.env-file }}" > .env
+        mkdir -p ~/.ssh
+        echo "${{ inputs.private-key }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
       shell: bash
 
-    - name: Build and Push Docker Image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        tags: ${{ steps.set-image-name.outputs.image-name }}
-        cache-from: type=local,src=/tmp/.buildx-cache
-        cache-to: type=local,dest=/tmp/.buildx-cache-new
-        builder: ${{ steps.setup-buildx.outputs.name }}
-
-    - name: Move Docker cache
+    - name: Setup Git Config
       run: |
-        rm -rf /tmp/.buildx-cache
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+        git config --global user.name "${{ inputs.git-username }}"
+        git config --global user.email "${{ inputs.git-email }}"
+      shell: bash
+
+    - name: Clone Repository And Update
+      run: |
+        git clone -b ${{ inputs.branch }} ${{ inputs.fleet-repo}}
+        cd ${{ inputs.fleet-path}}
+        sed -i "/${{ steps.set-repo-name.outputs.repo-name }}:/ { n; s/.*/  imageTag: \"${{ inputs.commit-hash }}\"/; }" ${{ inputs.fleet-values-path}}
+        git add .
+        git commit -m "Update ${{ steps.set-repo-name.outputs.repo-name }} version to ${{ inputs.commit-hash }}"
+        git push origin ${{ inputs.branch }}
       shell: bash
