@@ -49,7 +49,7 @@ runs:
       run: |
         git clone -b ${{ inputs.branch }} ${{ inputs.fleet-repo}}
         cd ${{ inputs.fleet-path}}
-        sed -i "/${{ inputs.repo }}:/,/imageTag:/ s/\(imageTag: \).*/\1\"${{ inputs.commit-hash }}\"/" ${{ inputs.fleet-values-path}}
+        sed -i "/^${{ inputs.repo }}:/,/imageTag:/ s/\(imageTag: \).*/\1\"${{ inputs.commit-hash }}\"/" ${{ inputs.fleet-values-path}}
         git add .
         git commit -m "Update ${{ inputs.repo }} version to ${{ inputs.commit-hash }}"
         git push origin ${{ inputs.branch }}
