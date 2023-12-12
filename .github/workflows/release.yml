@@ -39,3 +39,4 @@ jobs:
           release_name: Release ${{ steps.extract_branch.outputs.branch }}-v1
           draft: false
           prerelease: false
+          allowUpdates: true
