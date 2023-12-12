@@ -18,7 +18,7 @@ jobs:
 
       - name: Extract commit hash
         shell: bash
-        run: echo "##[set-output name=hash;]$(echo ${GITHUB_SHA})"
+        run: echo "##[set-output name=hash;]$(echo ${GITHUB_SHA::6})"
         id: extract_hash
 
       # - name: Build Project
@@ -59,6 +59,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.extract_branch.outputs.branch }}-v1
-          release_name: Release ${{ steps.extract_branch.outputs.branch }} ${{ steps.extract_hash.outputs.hash::6 }}
+          release_name: Release ${{ steps.extract_branch.outputs.branch }} ${{ steps.extract_hash.outputs.hash }}
           draft: false
           prerelease: false
