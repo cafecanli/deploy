@@ -33,7 +33,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag: ${{ steps.extract_branch.outputs.branch }}-v1
+          tag_name: ${{ steps.extract_branch.outputs.branch }}-v1
           commit: ${{ steps.extract_hash.outputs.hash }}
           release_name: Release ${{ steps.extract_branch.outputs.branch }} ${{ steps.extract_hash.outputs.hash }}
           draft: false
