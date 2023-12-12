@@ -44,9 +44,9 @@ runs:
       uses: actions/cache@v2
       with:
         path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ inputs.commit-hash }}
+        key: ${{ runner.os }}-buildx
         restore-keys: |
-          ${{ runner.os }}-buildx-
+          ${{ runner.os }}-buildx
 
     - name: Copy .env file contents
       if: inputs.env-file
