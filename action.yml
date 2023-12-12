@@ -49,8 +49,13 @@ runs:
       run: |
         git clone -b ${{ inputs.branch }} ${{ inputs.fleet-repo}}
         cd ${{ inputs.fleet-path}}
-         sed -i "/^${{ inputs.repo }}:/ { n; s/.*/  imageTag: \"${{ inputs.commit-hash }}\"/; }" ${{ inputs.fleet-values-path}}
+        sed -i "/^${{ inputs.repo }}:/ { n; s/.*/  imageTag: \"${{ inputs.commit-hash }}\"/; }" ${{ inputs.fleet-values-path}}
         git add .
-        git commit -m "Update ${{ inputs.repo }} version to ${{ inputs.commit-hash }}"
-        git push origin ${{ inputs.branch }}
+
+        if git diff --staged --quiet; then
+            echo "No changes to commit."
+        else
+            git commit -m "Update ${{ inputs.repo }} version to ${{ inputs.commit-hash }}"
+            git push origin ${{ inputs.branch }}
+        fi
       shell: bash
