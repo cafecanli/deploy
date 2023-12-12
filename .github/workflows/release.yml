@@ -35,7 +35,7 @@ jobs:
         with:
           # tag_name: ${{ steps.extract_branch.outputs.branch }}-${{ steps.extract_hash.outputs.hash }}
           # release_name: Release ${{ steps.extract_branch.outputs.branch }}-${{ steps.extract_hash.outputs.hash }}
-          tag_name: ${{ steps.extract_branch.outputs.branch }}-${{ steps.extract_hash.outputs.hash }}
-          release_name: Release ${{ steps.extract_branch.outputs.branch }}-${{ steps.extract_hash.outputs.hash }}
+          tag_name: ${{ steps.extract_branch.outputs.branch }}-v1
+          release_name: Release ${{ steps.extract_branch.outputs.branch }}-v1
           draft: false
           prerelease: false
