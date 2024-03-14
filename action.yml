@@ -10,8 +10,8 @@ inputs:
   commit-hash:
     description: "Commit hash"
     required: true
-  private-key:
-    description: "Ssh private key"
+  github-token:
+    description: "GitHub PAT to commit fleet-repo"
     required: true
   git-username:
     description: "Git username"
@@ -22,34 +22,26 @@ inputs:
   fleet-repo:
     description: "Fleet repo"
     required: true
-  fleet-path:
-    description: "Fleet path"
-    required: true
   fleet-values-path:
     description: "Fleet values.yaml path"
     required: true
 runs:
   using: "composite"
   steps:
-    - name: Setup SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ inputs.private-key }}" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
-      shell: bash
+    - name: Clone Repository And Update
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.fleet-repo }}
+        ref: ${{ inputs.branch }}
+        token: ${{ inputs.github-token }}
 
-    - name: Setup Git Config
+    - name: Update Fleet
+      shell: bash
       run: |
+        sed -i "/^${{ inputs.repo }}:/ { n; s/.*/  imageTag: \"${{ inputs.commit-hash }}\"/; }" ${{ inputs.fleet-values-path }}
+
         git config --global user.name "${{ inputs.git-username }}"
         git config --global user.email "${{ inputs.git-email }}"
-      shell: bash
-
-    - name: Clone Repository And Update
-      run: |
-        git clone -b ${{ inputs.branch }} ${{ inputs.fleet-repo}}
-        cd ${{ inputs.fleet-path}}
-        sed -i "/^${{ inputs.repo }}:/ { n; s/.*/  imageTag: \"${{ inputs.commit-hash }}\"/; }" ${{ inputs.fleet-values-path}}
         git add .
 
         if git diff --staged --quiet; then
@@ -58,4 +50,3 @@ runs:
             git commit -m "Update ${{ inputs.repo }} version to ${{ inputs.commit-hash }}"
             git push origin ${{ inputs.branch }}
         fi
-      shell: bash
