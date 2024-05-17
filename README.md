@@ -1,42 +1,49 @@
-# Alve Build Apps Action
+# Custom Deploy in Kubernetes GitHub Action
 
-This GitHub Action automates the process of building and pushing Docker images with caching, utilizing the dynamic generation of Docker image names based on repository, branch, and commit hash.
-
-## Usage
-
-To use this action in your workflow, add the following step:
-
-```yaml
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build and Push Docker Image
-        uses: Alve-Development/alve-build-apps@v1.0.0
-        with:
-          env-file: ${{ secrets.ENV_FILE }}
-          docker-username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          docker-password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-```
+This GitHub Action allows you to deploy to a development Kubernetes cluster using Fleet, with the ability to specify the repository, branch, commit hash, SSH private key, Git username, Git email, Fleet repository, Fleet path, and Fleet `values.yaml` path.
 
 ## Inputs
 
-- `docker-username`: Your Docker Hub username. (Required)
-- `docker-password`: Your Docker Hub password or access token. (Required)
-- `env-file`: Env file contents to be copied `.env` file. (Optional)
+- `repo`:
+  - **Description**: Repository name
+  - **Required**: true
 
-## Outputs
+- `branch`:
+  - **Description**: Branch name
+  - **Required**: true
 
-- `docker-image-name`: The full name of the Docker image that was built and pushed.
+- `commit-hash`:
+  - **Description**: Commit hash
+  - **Required**: true
 
-## Example Workflow
+- `private-key`:
+  - **Description**: SSH private key
+  - **Required**: true
 
-Here's a full workflow example:
+- `git-username`:
+  - **Description**: Git username
+  - **Required**: true
+
+- `git-email`:
+  - **Description**: Git email
+  - **Required**: true
+
+- `fleet-repo`:
+  - **Description**: Fleet repository
+  - **Required**: true
+
+- `fleet-path`:
+  - **Description**: Fleet path
+  - **Required**: true
+
+- `fleet-values-path`:
+  - **Description**: Fleet `values.yaml` path
+  - **Required**: true
+
+## Example Usage
 
 ```yaml
-name: Deploy
+name: Deploy to Dev Cluster
 
 on:
   push:
@@ -44,22 +51,39 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Build and Push Docker Image
-        uses: Alve-Development/alve-build-apps@v1.0.0
-        with:
-          env-file: ${{ secrets.ENV_FILE }}
-          docker-username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          docker-password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Custom Deploy In Kubernetes
+      id: deploy
+      uses: your-org/custom-deploy-action@v1
+      with:
+        repo: ${{ github.repository }}
+        branch: ${{ github.ref }}
+        commit-hash: ${{ github.sha }}
+        private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        git-username: ${{ secrets.GIT_USERNAME }}
+        git-email: ${{ secrets.GIT_EMAIL }}
+        fleet-repo: 'https://github.com/fleet-repo/fleet.git'
+        fleet-path: 'path/to/fleet'
+        fleet-values-path: 'path/to/values.yaml'
+
+    - name: Deployment Status
+      run: echo "Deployment successful!"
 ```
 
-## License
+This example workflow triggers the deployment on each push to the `main` branch, using the specified inputs for the Custom Deploy In Kubernetes action. Make sure to replace placeholders with your actual values.
 
-[MIT](LICENSE.md)
+## Workflow Explanation
 
-## Contributing
+1. **Checkout Repository**: This step checks out the repository code.
 
-Contributions are welcome! Please feel free to submit a pull request.
+2. **Custom Deploy In Kubernetes**: This step uses the custom action to deploy to the development Kubernetes cluster.
+
+3. **Deployment Status**: This step is a placeholder for any additional steps or notifications you may want to add after a successful deployment.
+
+Feel free to customize the workflow according to your specific requirements and adjust the action inputs accordingly.

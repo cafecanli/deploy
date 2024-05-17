@@ -27,13 +27,38 @@ jobs:
       # - name: Run Tests
       #   run: # Your test commands here
 
+      - name: Delete previous release if exists
+        id: delete_release
+        uses: actions/github-script@0.9.0
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const tagName = '${{ steps.extract_branch.outputs.branch }}';
+            const releases = await github.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const release = releases.data.find(release => release.tag_name === tagName);
+            if (release) {
+              await github.repos.deleteRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.id,
+              });
+              await github.git.deleteRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'tags/' + tagName,
+              });
+            }
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.extract_branch.outputs.branch }}-${{ steps.extract_hash.outputs.hash }}
-          release_name: Release ${{ steps.extract_branch.outputs.branch }}-${{ steps.extract_hash.outputs.hash }}
+          tag_name: ${{ steps.extract_branch.outputs.branch }}
+          release_name: Release ${{ steps.extract_branch.outputs.branch }} ${{ steps.extract_hash.outputs.hash }}
           draft: false
           prerelease: false

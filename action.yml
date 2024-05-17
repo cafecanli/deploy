@@ -1,5 +1,5 @@
-name: "Custom Docker Build and Push"
-description: "Build and push Docker images with caching"
+name: "Custom Deploy In Kubernates"
+description: "Deploy to Dev Cluster"
 inputs:
   repo:
     description: "Repository name"
@@ -10,63 +10,43 @@ inputs:
   commit-hash:
     description: "Commit hash"
     required: true
-  docker-username:
-    description: "Docker Hub username"
+  github-token:
+    description: "GitHub PAT to commit fleet-repo"
     required: true
-  docker-password:
-    description: "Docker Hub password"
+  git-username:
+    description: "Git username"
     required: true
-  env-file:
-    description: ".env file contents"
-    required: false
-
+  git-email:
+    description: "Git e-mail"
+    required: true
+  fleet-repo:
+    description: "Fleet repo"
+    required: true
+  fleet-values-path:
+    description: "Fleet values.yaml path"
+    required: true
 runs:
   using: "composite"
   steps:
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Set Docker Image Name
-      id: set-image-name
-      run: |
-        DOCKER_IMAGE_NAME="${{ inputs.docker-username }}/${{ inputs.branch }}_${{ inputs.repo }}:${{ inputs.commit-hash }}"
-        DOCKER_IMAGE_NAME=$(echo $DOCKER_IMAGE_NAME | tr '[:upper:]' '[:lower:]')
-        echo "::set-output name=image-name::$DOCKER_IMAGE_NAME"
-      shell: bash
-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+    - name: Clone Repository And Update
+      uses: actions/checkout@v4
       with:
-        username: ${{ inputs.docker-username }}
-        password: ${{ inputs.docker-password }}
+        repository: ${{ inputs.fleet-repo }}
+        ref: ${{ inputs.branch }}
+        token: ${{ inputs.github-token }}
 
-    - name: Cache Docker layers
-      uses: actions/cache@v2
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ inputs.commit-hash }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
-
-    - name: Copy .env file contents
-      if: inputs.env-file
-      run: |
-        echo "${{ inputs.env-file }}" > .env
+    - name: Update Fleet
       shell: bash
-
-    - name: Build and Push Docker Image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        tags: ${{ steps.set-image-name.outputs.image-name }}
-        cache-from: type=local,src=/tmp/.buildx-cache
-        cache-to: type=local,dest=/tmp/.buildx-cache-new
-        builder: ${{ steps.setup-buildx.outputs.name }}
-
-    - name: Move Docker cache
       run: |
-        rm -rf /tmp/.buildx-cache
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      shell: bash
+        sed -i "/^${{ inputs.repo }}:/ { n; s/.*/  imageTag: \"${{ inputs.commit-hash }}\"/; }" ${{ inputs.fleet-values-path }}
+
+        git config --global user.name "${{ inputs.git-username }}"
+        git config --global user.email "${{ inputs.git-email }}"
+        git add .
+
+        if git diff --staged --quiet; then
+            echo "No changes to commit."
+        else
+            git commit -m "Update ${{ inputs.repo }} version to ${{ inputs.commit-hash }}"
+            git push origin ${{ inputs.branch }}
+        fi
