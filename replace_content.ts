@@ -43,20 +43,18 @@ async function main(): Promise<void> {
   }
 
   const content = await readFile(path, 'utf-8');
+  const matches = content.match(regex);
 
-  let count = 0;
-  let updated = content;
-
-  while (regex.test(updated)) {
-    updated = updated.replace(regex, sha);
-    count++;
-  }
-
-  if (!count) {
+  if (!matches || !matches.length) {
     throw new Error(`No match found for ${pattern}`);
   }
 
-  logger.log(`Replaced ${count} occurrences of ${pattern} with ${sha}`);
+  const updated = content.replace(regex, sha);
+
+  logger.log(
+    `Replaced ${matches.length} occurrences of ${pattern} with ${sha}`,
+  );
+
   logger.log(`Writing output to "${path}"`);
 
   await writeFile(path, updated, 'utf-8');
