@@ -29,6 +29,14 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Test repository access
+      shell: bash
+      env:
+        GITHUB_USERNAME: ${{ inputs.git-username }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        GITHUB_REPO: ${{ inputs.fleet-repo }}
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/44de32ae9736c01cfce8b1b3c384e9371ec77766/test_connectivity.sh | bash
+
     - name: Clone Repository And Update
       uses: actions/checkout@v4
       with:
@@ -41,7 +49,7 @@ runs:
       env:
         GITHUB_USERNAME: ${{ inputs.git-username }}
         GITHUB_EMAIL: ${{ inputs.git-email }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/f5ab86814ad9758e8bdc261784a86734d8de164a/configure_git.sh | bash
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/44de32ae9736c01cfce8b1b3c384e9371ec77766/configure_git.sh | bash
 
     - name: Replace content
       shell: bash
@@ -54,4 +62,4 @@ runs:
         GITHUB_REPO: ${{ inputs.fleet-repo }}
         GITHUB_BRANCH: ${{ inputs.branch }}
         GITHUB_SHA: ${{ inputs.commit-hash }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/f5ab86814ad9758e8bdc261784a86734d8de164a/commit_changes.sh | bash
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/44de32ae9736c01cfce8b1b3c384e9371ec77766/commit_changes.sh | bash
