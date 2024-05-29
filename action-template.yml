@@ -38,7 +38,10 @@ runs:
         GITHUB_BRANCH: ${{ inputs.branch }}
       run: curl -o- {{base_url}}/test_connectivity.sh | bash
 
-    - name: Clone Repository And Update
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v1
+
+    - name: Clone Repository
       uses: actions/checkout@v4
       with:
         repository: ${{ inputs.fleet-repo }}
@@ -54,8 +57,11 @@ runs:
 
     - name: Replace content
       shell: bash
-      run: |
-        sed -i '/^${{ inputs.repo }}:/ { n; s/.*/  imageTag: "${{ inputs.commit-hash }}"/; }' '${{ inputs.fleet-values-path }}'
+      env:
+        REPOSITORY_NAME: ${{ inputs.repo }}
+        COMMIT_SHA: ${{ inputs.repo }}
+        FLEET_VALUES_PATH: ${{ inputs.commit-hash }}
+      run: curl -o- {{base_url}}/replace_content.ts | bun -
 
     - name: Update Fleet
       shell: bash
