@@ -31,7 +31,7 @@ async function main(): Promise<void> {
 
   if (repo.includes('/')) {
     logger.warn('Omitting the owner from the repository name');
-    [repo] = repo.split('/');
+    [, repo] = repo.split('/');
   }
 
   const path = resolve(process.cwd(), String(file).trim());
