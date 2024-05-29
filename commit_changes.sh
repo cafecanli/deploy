@@ -28,9 +28,16 @@ check_env_vars() {
 }
 
 main() {
-  check_env_vars "GITHUB_USERNAME" "GITHUB_EMAIL"
-  git config --global user.name "$GITHUB_USERNAME"
-  git config --global user.email "$GITHUB_EMAIL"
+  check_env_vars "GITHUB_REPO" "GITHUB_BRANCH" "GITHUB_SHA"
+
+  git add .
+
+  if git diff --staged --quiet; then
+    echo "No changes on $GITHUB_REPO/$GITHUB_BRANCH to commit."
+  else
+    git commit -m "Update $GITHUB_REPO version to $GITHUB_SHA"
+    git push origin "$GITHUB_BRANCH"
+  fi
 }
 
 main
