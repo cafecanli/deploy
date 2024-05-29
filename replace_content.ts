@@ -13,8 +13,9 @@ function escape(input: string): string {
 
 async function main(): Promise<void> {
   const file = process.env.FLEET_VALUES_PATH?.trim();
-  const repo = process.env.REPOSITORY_NAME?.trim();
   const sha = process.env.COMMIT_SHA?.trim();
+
+  let repo = process.env.REPOSITORY_NAME?.trim();
 
   if (!file) {
     throw new Error('FLEET_VALUES_PATH is required to replace the content');
@@ -26,6 +27,11 @@ async function main(): Promise<void> {
 
   if (!sha) {
     throw new Error('COMMIT_SHA is required to replace the content');
+  }
+
+  if (repo.includes('/')) {
+    logger.warn('Omitting the owner from the repository name');
+    [repo] = repo.split('/');
   }
 
   const path = resolve(process.cwd(), String(file).trim());
