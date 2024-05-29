@@ -41,19 +41,17 @@ runs:
       env:
         GITHUB_USERNAME: ${{ inputs.git-username }}
         GITHUB_EMAIL: ${{ inputs.git-email }}
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/d92d8e84b5cc1035e5e0cfaf3bfbc1e879dd3711/configure_git.sh | bash
+
+    - name: Replace content
+      shell: bash
       run: |
-        git config --global user.name "$GITHUB_USERNAME"
-        git config --global user.email "$GITHUB_EMAIL"
+        sed -i '/^${{ inputs.repo }}:/ { n; s/.*/  imageTag: "${{ inputs.commit-hash }}"/; }' '${{ inputs.fleet-values-path }}'
 
     - name: Update Fleet
       shell: bash
-      run: |
-        sed -i "/^${{ inputs.repo }}:/ { n; s/.*/  imageTag: \"${{ inputs.commit-hash }}\"/; }" ${{ inputs.fleet-values-path }}
-        git add .
-
-        if git diff --staged --quiet; then
-            echo "No changes to commit."
-        else
-            git commit -m "Update ${{ inputs.repo }} version to ${{ inputs.commit-hash }}"
-            git push origin ${{ inputs.branch }}
-        fi
+      env:
+        GITHUB_REPO: ${{ inputs.fleet-repo }}
+        GITHUB_BRANCH: ${{ inputs.branch }}
+        GITHUB_SHA: ${{ inputs.commit-hash }}
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/d92d8e84b5cc1035e5e0cfaf3bfbc1e879dd3711/commit_changes.sh | bash
