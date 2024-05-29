@@ -41,7 +41,7 @@ runs:
       env:
         GITHUB_USERNAME: ${{ inputs.git-username }}
         GITHUB_EMAIL: ${{ inputs.git-email }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/d92d8e84b5cc1035e5e0cfaf3bfbc1e879dd3711/configure_git.sh | bash
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/f5ab86814ad9758e8bdc261784a86734d8de164a/configure_git.sh | bash
 
     - name: Replace content
       shell: bash
@@ -54,4 +54,4 @@ runs:
         GITHUB_REPO: ${{ inputs.fleet-repo }}
         GITHUB_BRANCH: ${{ inputs.branch }}
         GITHUB_SHA: ${{ inputs.commit-hash }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/d92d8e84b5cc1035e5e0cfaf3bfbc1e879dd3711/commit_changes.sh | bash
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/f5ab86814ad9758e8bdc261784a86734d8de164a/commit_changes.sh | bash
