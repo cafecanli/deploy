@@ -35,6 +35,7 @@ runs:
         GITHUB_USERNAME: ${{ inputs.git-username }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
         GITHUB_REPO: ${{ inputs.fleet-repo }}
+        GITHUB_BRANCH: ${{ inputs.branch }}
       run: curl -o- {{base_url}}/test_connectivity.sh | bash
 
     - name: Clone Repository And Update
