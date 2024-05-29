@@ -59,8 +59,8 @@ runs:
       shell: bash
       env:
         REPOSITORY_NAME: ${{ inputs.repo }}
-        COMMIT_SHA: ${{ inputs.repo }}
-        FLEET_VALUES_PATH: ${{ inputs.commit-hash }}
+        COMMIT_SHA: ${{ inputs.github-sha }}
+        FLEET_VALUES_PATH: ${{ inputs.fleet-values-path }}
       run: curl -o- {{base_url}}/replace_content.ts | bun -
 
     - name: Update Fleet
