@@ -59,7 +59,7 @@ runs:
       shell: bash
       env:
         REPOSITORY_NAME: ${{ inputs.repo }}
-        COMMIT_SHA: ${{ inputs.github-sha }}
+        COMMIT_SHA: ${{ inputs.commit-hash }}
         FLEET_VALUES_PATH: ${{ inputs.fleet-values-path }}
       run: curl -o- {{base_url}}/replace_content.ts | bun -
 
