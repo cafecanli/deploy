@@ -36,7 +36,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         GITHUB_REPO: ${{ inputs.fleet-repo }}
         GITHUB_BRANCH: ${{ inputs.branch }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/8efc53d27525962167b0068fbe0c356b2d2b672e/test_connectivity.sh | bash
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/62862eddd213ec3737d2b31ebf8f293f5ea575f4/test_connectivity.sh | bash
 
     - name: Setup Bun
       uses: oven-sh/setup-bun@v1
@@ -53,15 +53,15 @@ runs:
       env:
         GITHUB_USERNAME: ${{ inputs.git-username }}
         GITHUB_EMAIL: ${{ inputs.git-email }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/8efc53d27525962167b0068fbe0c356b2d2b672e/configure_git.sh | bash
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/62862eddd213ec3737d2b31ebf8f293f5ea575f4/configure_git.sh | bash
 
     - name: Replace content
       shell: bash
       env:
         REPOSITORY_NAME: ${{ inputs.repo }}
-        COMMIT_SHA: ${{ inputs.github-sha }}
+        COMMIT_SHA: ${{ inputs.commit-hash }}
         FLEET_VALUES_PATH: ${{ inputs.fleet-values-path }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/8efc53d27525962167b0068fbe0c356b2d2b672e/replace_content.ts | bun -
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/62862eddd213ec3737d2b31ebf8f293f5ea575f4/replace_content.ts | bun -
 
     - name: Update Fleet
       shell: bash
@@ -69,4 +69,4 @@ runs:
         GITHUB_REPO: ${{ inputs.fleet-repo }}
         GITHUB_BRANCH: ${{ inputs.branch }}
         GITHUB_SHA: ${{ inputs.commit-hash }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/8efc53d27525962167b0068fbe0c356b2d2b672e/commit_changes.sh | bash
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/62862eddd213ec3737d2b31ebf8f293f5ea575f4/commit_changes.sh | bash
