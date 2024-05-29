@@ -35,9 +35,13 @@ runs:
         GITHUB_USERNAME: ${{ inputs.git-username }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
         GITHUB_REPO: ${{ inputs.fleet-repo }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/44de32ae9736c01cfce8b1b3c384e9371ec77766/test_connectivity.sh | bash
+        GITHUB_BRANCH: ${{ inputs.branch }}
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/8a32c48c6e9758a7997d6b1295a2a002eb21ca25/test_connectivity.sh | bash
 
-    - name: Clone Repository And Update
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v1
+
+    - name: Clone Repository
       uses: actions/checkout@v4
       with:
         repository: ${{ inputs.fleet-repo }}
@@ -49,12 +53,15 @@ runs:
       env:
         GITHUB_USERNAME: ${{ inputs.git-username }}
         GITHUB_EMAIL: ${{ inputs.git-email }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/44de32ae9736c01cfce8b1b3c384e9371ec77766/configure_git.sh | bash
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/8a32c48c6e9758a7997d6b1295a2a002eb21ca25/configure_git.sh | bash
 
     - name: Replace content
       shell: bash
-      run: |
-        sed -i '/^${{ inputs.repo }}:/ { n; s/.*/  imageTag: "${{ inputs.commit-hash }}"/; }' '${{ inputs.fleet-values-path }}'
+      env:
+        REPOSITORY_NAME: ${{ inputs.repo }}
+        COMMIT_SHA: ${{ inputs.repo }}
+        FLEET_VALUES_PATH: ${{ inputs.commit-hash }}
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/8a32c48c6e9758a7997d6b1295a2a002eb21ca25/replace_content.ts | bun -
 
     - name: Update Fleet
       shell: bash
@@ -62,4 +69,4 @@ runs:
         GITHUB_REPO: ${{ inputs.fleet-repo }}
         GITHUB_BRANCH: ${{ inputs.branch }}
         GITHUB_SHA: ${{ inputs.commit-hash }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/44de32ae9736c01cfce8b1b3c384e9371ec77766/commit_changes.sh | bash
+      run: curl -o- https://raw.githubusercontent.com/alvelive/deploy/8a32c48c6e9758a7997d6b1295a2a002eb21ca25/commit_changes.sh | bash
