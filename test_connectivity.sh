@@ -27,9 +27,9 @@ check_env_vars() {
 }
 
 main() {
-  check_env_vars "GITHUB_USERNAME" "GITHUB_TOKEN" "GITHUB_REPO" "GITHUB_BRANCH"
+  check_env_vars "GITHUB_TOKEN" "GITHUB_REPO" "GITHUB_BRANCH"
 
-  local repo_url="https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_REPO.git"
+  local repo_url="https://$GITHUB_TOKEN@github.com/$GITHUB_REPO.git"
   local github_ref="refs/heads/$GITHUB_BRANCH"
 
   if git ls-remote --heads "$repo_url" "$GITHUB_BRANCH" | grep -q "$github_ref"; then

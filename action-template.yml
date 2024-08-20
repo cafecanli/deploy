@@ -16,9 +16,11 @@ inputs:
   git-username:
     description: 'Git username'
     required: true
+    default: 'GitHub Actions'
   git-email:
     description: 'Git e-mail'
     required: true
+    default: actions@github.com
   fleet-repo:
     description: 'Fleet repo'
     required: true
@@ -32,7 +34,6 @@ runs:
     - name: Test repository access
       shell: bash
       env:
-        GITHUB_USERNAME: ${{ inputs.git-username }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
         GITHUB_REPO: ${{ inputs.fleet-repo }}
         GITHUB_BRANCH: ${{ inputs.branch }}
