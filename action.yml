@@ -54,22 +54,15 @@ runs:
         GLOB: ${{ inputs.glob }}
         MATCH: ${{ inputs.match }}
         REPLACE: ${{ inputs.replace }}
-      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/020915320373aeb9163f0b3ee65c07d98cd07bec/replace.ts" | time bun -
+      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/a7ca9e906dee277a1eece0e694e90e47b6705081/replace.ts" | time bun -
 
     - name: Commit changes
       shell: bash
       env:
         COMMIT_EMAIL: ${{ inputs.commit-email }}
         COMMIT_USERNAME: ${{ inputs.commit-username }}
-        COMMIT_MESSAGE: ${{ inputs.commit-message  }}
-        GLOB: ${{ inputs.glob }}
-        MATCH: ${{ inputs.match }}
-        REPLACE: ${{ inputs.replace }}
+        COMMIT_MESSAGE: ${{ inputs.commit-message || 'Replaced ${{ inputs.match }} with ${{ inputs.replace }} in ${{ inputs.branch }}' }}
       run: |
-        if [ -z "${COMMIT_MESSAGE}" ]; then
-            COMMIT_MESSAGE="Replaced ${MATCH} with ${REPLACE} in ${GLOB}"
-        fi
-
         git config --global user.email "${COMMIT_EMAIL}"
         git config --global user.name "${COMMIT_USERNAME}"
         git add .
