@@ -54,7 +54,7 @@ runs:
         GLOB: ${{ inputs.glob }}
         MATCH: ${{ inputs.match }}
         REPLACE: ${{ inputs.replace }}
-      run: curl -o- {{base_url}}/replace.ts | bun -
+      run: curl -fsSL "{{base_url}}/replace.ts" | time bun -
 
     - name: Commit changes
       shell: bash
@@ -62,4 +62,4 @@ runs:
         COMMIT_EMAIL: ${{ inputs.commit-email }}
         COMMIT_USERNAME: ${{ inputs.commit-username }}
         COMMIT_MESSAGE: ${{ inputs.commit-message || 'Replaced ${{ inputs.match }} with ${{ inputs.replace }} in ${{ inputs.branch }}' }}
-      run: curl -o- {{base_url}}/commit.ts | bun -
+      run: curl -fsSL "{{base_url}}/commit.ts" | time bun -
