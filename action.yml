@@ -54,7 +54,7 @@ runs:
         GLOB: ${{ inputs.glob }}
         MATCH: ${{ inputs.match }}
         REPLACE: ${{ inputs.replace }}
-      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/6eb4b1bb9096470a89aa08502b0d00e26b9830dd/replace.ts" | time bun -
+      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/adb91499a8f1f416a2d963d4b3f62dd7986fee58/replace.ts" | time bun -
 
     - name: Commit changes
       shell: bash
@@ -62,4 +62,4 @@ runs:
         COMMIT_EMAIL: ${{ inputs.commit-email }}
         COMMIT_USERNAME: ${{ inputs.commit-username }}
         COMMIT_MESSAGE: ${{ inputs.commit-message || 'Replaced ${{ inputs.match }} with ${{ inputs.replace }} in ${{ inputs.branch }}' }}
-      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/6eb4b1bb9096470a89aa08502b0d00e26b9830dd/commit.ts" | time bun -
+      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/adb91499a8f1f416a2d963d4b3f62dd7986fee58/commit.ts" | time bun -
