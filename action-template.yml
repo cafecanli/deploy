@@ -62,4 +62,9 @@ runs:
         COMMIT_EMAIL: ${{ inputs.commit-email }}
         COMMIT_USERNAME: ${{ inputs.commit-username }}
         COMMIT_MESSAGE: ${{ inputs.commit-message || 'Replaced ${{ inputs.match }} with ${{ inputs.replace }} in ${{ inputs.branch }}' }}
-      run: curl -fsSL "{{base_url}}/commit.ts" | time bun -
+      run: |
+        git config --global user.email "${COMMIT_EMAIL}"
+        git config --global user.name "${COMMIT_USERNAME}"
+        git add .
+        git commit -m "${COMMIT_MESSAGE}"
+        git push
