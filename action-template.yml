@@ -1,5 +1,5 @@
-name: 'Custom Deploy In Kubernates'
-description: 'Deploy to Dev Cluster'
+name: 'Replace contents'
+description: 'Replace contents in files using bun Glob and EcmaScript RegExp'
 inputs:
   repo:
     description: 'Repository name'
