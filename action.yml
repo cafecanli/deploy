@@ -61,8 +61,15 @@ runs:
       env:
         COMMIT_EMAIL: ${{ inputs.commit-email }}
         COMMIT_USERNAME: ${{ inputs.commit-username }}
-        COMMIT_MESSAGE: ${{ inputs.commit-message || 'Replaced ${{ inputs.match }} with ${{ inputs.replace }} in ${{ inputs.branch }}' }}
+        COMMIT_MESSAGE: ${{ inputs.commit-message  }}
+        GLOB: ${{ inputs.glob }}
+        MATCH: ${{ inputs.match }}
+        REPLACE: ${{ inputs.replace }}
       run: |
+        if [ -z "${COMMIT_MESSAGE}" ]; then
+            COMMIT_MESSAGE="Replaced ${MATCH} with ${REPLACE} in ${GLOB}"
+        fi
+
         git config --global user.email "${COMMIT_EMAIL}"
         git config --global user.name "${COMMIT_USERNAME}"
         git add .
