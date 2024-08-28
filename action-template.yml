@@ -7,67 +7,59 @@ inputs:
   branch:
     description: 'Branch name'
     required: true
-  commit-hash:
-    description: 'Commit hash'
-    required: true
   github-token:
-    description: 'GitHub PAT to commit fleet-repo'
+    description: 'GitHub PAT to commit repository'
     required: true
-  git-username:
-    description: 'Git username'
-    required: true
+  commit-username:
+    description: 'Commit username'
     default: 'GitHub Actions'
-  git-email:
-    description: 'Git e-mail'
     required: true
-    default: actions@github.com
-  fleet-repo:
-    description: 'Fleet repo'
+  commit-email:
+    description: 'Commit e-mail'
+    default: 'actions@github.com'
     required: true
-  fleet-values-path:
-    description: 'Fleet values.yaml path'
+  commit-message:
+    description: 'Commit message (default will be: Replaced {{ inputs.match }} with {{ inputs.replace }} in {{ inputs.branch }})'
+    required: false
+  glob:
+    description: 'Will be used in find command to find files to replace the given content'
+    required: true
+  match:
+    description: 'Content to be replaced'
+    required: true
+  flags:
+    description: 'Flags to be used in RegExp'
+    required: true
+    default: gmu
+  replace:
+    description: 'Content to replace'
     required: true
 
 runs:
   using: 'composite'
   steps:
-    - name: Test repository access
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
-        GITHUB_REPO: ${{ inputs.fleet-repo }}
-        GITHUB_BRANCH: ${{ inputs.branch }}
-      run: curl -o- {{base_url}}/test_connectivity.sh | bash
-
     - name: Setup Bun
       uses: oven-sh/setup-bun@v1
 
     - name: Clone Repository
       uses: actions/checkout@v4
       with:
-        repository: ${{ inputs.fleet-repo }}
+        repository: ${{ inputs.repo }}
         ref: ${{ inputs.branch }}
         token: ${{ inputs.github-token }}
-
-    - name: Configure Git
-      shell: bash
-      env:
-        GITHUB_USERNAME: ${{ inputs.git-username }}
-        GITHUB_EMAIL: ${{ inputs.git-email }}
-      run: curl -o- {{base_url}}/configure_git.sh | bash
 
     - name: Replace content
       shell: bash
       env:
-        REPOSITORY_NAME: ${{ inputs.repo }}
-        COMMIT_SHA: ${{ inputs.commit-hash }}
-        FLEET_VALUES_PATH: ${{ inputs.fleet-values-path }}
-      run: curl -o- {{base_url}}/replace_content.ts | bun -
+        GLOB: ${{ inputs.glob }}
+        MATCH: ${{ inputs.match }}
+        REPLACE: ${{ inputs.replace }}
+      run: curl -o- {{base_url}}/replace.ts | bun -
 
-    - name: Update Fleet
+    - name: Commit changes
       shell: bash
       env:
-        GITHUB_REPO: ${{ inputs.fleet-repo }}
-        GITHUB_BRANCH: ${{ inputs.branch }}
-        GITHUB_SHA: ${{ inputs.commit-hash }}
-      run: curl -o- {{base_url}}/commit_changes.sh | bash
+        COMMIT_EMAIL: ${{ inputs.commit-email }}
+        COMMIT_USERNAME: ${{ inputs.commit-username }}
+        COMMIT_MESSAGE: ${{ inputs.commit-message || 'Replaced ${{ inputs.match }} with ${{ inputs.replace }} in ${{ inputs.branch }}' }}
+      run: curl -o- {{base_url}}/commit.ts | bun -
