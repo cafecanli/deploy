@@ -28,13 +28,21 @@ function config() {
 
 async function main() {
   const [email, username, message] = config();
+  const info = (message: string) => logger.info(message);
 
+  info(`Setting up user email to ${email}`);
   await $`git config --global user.email "${email}"`;
+
+  info(`Setting up user name to ${username}`);
   await $`git config --global user.name "${username}"`;
 
+  info(`Adding all files to commit`);
   await $`git add .`;
+
+  info(`Committing with message: ${message}`);
   await $`git commit -m '${message}'`;
 
+  info(`Pushing to remote`);
   await $`git push`;
 }
 
