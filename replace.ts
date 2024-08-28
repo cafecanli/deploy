@@ -46,8 +46,9 @@ function config() {
 }
 
 async function replaceFile(file: string) {
+  const rel = resolve(file).replace(resolve(__dirname), '');
   const log = (level: string, message: string) =>
-    logger[level](`[${file}] ${message}`);
+    logger[level](`[${rel}] ${message}`);
 
   const info = (message: string) => log('info', message);
   const error = (message: string) => {
