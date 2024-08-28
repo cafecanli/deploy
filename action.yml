@@ -54,7 +54,7 @@ runs:
         GLOB: ${{ inputs.glob }}
         MATCH: ${{ inputs.match }}
         REPLACE: ${{ inputs.replace }}
-      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/fdfd2a715e8afce8961ed0295b6126ce584f3c59/replace.ts" | time bun -
+      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/028549aa42f77829a0ec1b3863831db306ca7e3f/replace.ts" | time bun -
 
     - name: Commit changes
       shell: bash
@@ -66,6 +66,11 @@ runs:
         MATCH: ${{ inputs.match }}
         REPLACE: ${{ inputs.replace }}
       run: |
+        if git diff --staged --quiet; then
+          echo "No changes to commit."
+          exit 0
+        fi
+
         if [ -z "${COMMIT_MESSAGE}" ]; then
             COMMIT_MESSAGE="Replaced ${MATCH} with ${REPLACE} in ${GLOB}"
         fi
