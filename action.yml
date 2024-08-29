@@ -54,16 +54,33 @@ runs:
         GLOB: ${{ inputs.glob }}
         MATCH: ${{ inputs.match }}
         REPLACE: ${{ inputs.replace }}
-      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/fb14964bd4a323b2a711852761d60f796228d660/replace.ts" | time bun -
+      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/0e598a3cc6cfe61a6cc4bb96d88a9222d2874ec1/replace.ts" | time bun -
 
     - name: Set Commit Message
       shell: bash
+      env:
+        COMMIT_MESSAGE: '${{ inputs.commit-message }}'
       run: |
-        if [ -z '${{ inputs.commit-message }}' ]; then
-          echo 'COMMIT_MESSAGE=Replaced: regex=/${{ inputs.match }}/${{ inputs.flags }} with "${{ inputs.replace }}" in "${{ inputs.repo }}/${{ inputs.branch }}" using glob "${{ inputs.glob }}"' >> $GITHUB_ENV
-        else
-          echo 'COMMIT_MESSAGE=${{ inputs.commit-message }}' >> $GITHUB_ENV
+        if [ -n '$COMMIT_MESSAGE' ]; then
+          echo -e "Commig message is already set to\n\n$COMMIT_MESSAGE"
+          echo 'COMMIT_MESSAGE=$COMMIT_MESSAGE' >> $GITHUB_ENV
+
+          exit 0
         fi
+
+        echo "Commit message is not set, setting default message"
+
+        commit_msg='
+        Replaced occurances in files matching the given glob
+
+        Matched /${{ inputs.match }}/${{ inputs.flags }} and replaced occurances with
+        "${{ inputs.replace }}" using glob "${{ inputs.glob }}" in branch "${{ inputs.branch }}"
+        '
+
+        commit_msg="$(echo "$commit_msg" | xargs)"
+
+        echo "COMMIT_MESSAGE=$commit_msg" >> $GITHUB_ENV
+        echo -e "Commit message is set to\n\n$commit_msg"
 
     - name: Commit changes
       shell: bash
