@@ -54,7 +54,7 @@ runs:
         GLOB: ${{ inputs.glob }}
         MATCH: ${{ inputs.match }}
         REPLACE: ${{ inputs.replace }}
-      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/2aede0a226a9ce334cc06a441a0a74cc251e3c0b/replace.ts" | time bun -
+      run: curl -fsSL "https://raw.githubusercontent.com/cafecanli/deploy/37bb74522f55b7f2f1fde28363bcc80e8836bde1/replace.ts" | time bun -
 
     - name: Set Commit Message
       shell: bash
@@ -62,8 +62,8 @@ runs:
         COMMIT_MESSAGE: '${{ inputs.commit-message }}'
       run: |
         if [ -n "$COMMIT_MESSAGE" ]; then
-          echo -e "Commig message is already set to\n\n$COMMIT_MESSAGE"
-          echo 'COMMIT_MESSAGE=$COMMIT_MESSAGE' >> $GITHUB_ENV
+          echo -e "Commit message is already set to\n\n$COMMIT_MESSAGE"
+          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
 
           exit 0
         fi
