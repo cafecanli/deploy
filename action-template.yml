@@ -56,27 +56,32 @@ runs:
         REPLACE: ${{ inputs.replace }}
       run: curl -fsSL "{{base_url}}/replace.ts" | time bun -
 
+    - name: Set Commit Message
+      id: set_commit_message
+      run: |
+        if [ -z "${{ inputs.commit-message }}" ]; then
+          echo "COMMIT_MESSAGE=Replaced ${{ inputs.match }} with ${{ inputs.replace }} in ${{ inputs.branch }}" >> $GITHUB_ENV
+        else
+          echo "COMMIT_MESSAGE=${{ inputs.commit-message }}" >> $GITHUB_ENV
+        fi
+
+    - name: Stage changes
+      run: git add .
+
     - name: Commit changes
       shell: bash
       env:
         COMMIT_EMAIL: ${{ inputs.commit-email }}
         COMMIT_USERNAME: ${{ inputs.commit-username }}
-        COMMIT_MESSAGE: ${{ inputs.commit-message || 'Replaced ${{ inputs.match }} with ${{ inputs.replace }} in ${{ inputs.branch }}' }}
-        GLOB: ${{ inputs.glob }}
-        MATCH: ${{ inputs.match }}
-        REPLACE: ${{ inputs.replace }}
+        COMMIT_MESSAGE: ${{ env.COMMIT_MESSAGE }}
       run: |
-        if git diff --staged --quiet; then
+        git config --global user.email "${COMMIT_EMAIL}"
+        git config --global user.name "${COMMIT_USERNAME}"
+
+        if git diff --quiet; then
           echo "No changes to commit."
           exit 0
         fi
 
-        if [ -z "${COMMIT_MESSAGE}" ]; then
-            COMMIT_MESSAGE="Replaced ${MATCH} with ${REPLACE} in ${GLOB}"
-        fi
-
-        git config --global user.email "${COMMIT_EMAIL}"
-        git config --global user.name "${COMMIT_USERNAME}"
-        git add .
         git commit -m "${COMMIT_MESSAGE}"
         git push
