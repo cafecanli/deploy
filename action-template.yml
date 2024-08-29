@@ -61,7 +61,7 @@ runs:
       env:
         COMMIT_MESSAGE: '${{ inputs.commit-message }}'
       run: |
-        if [ -n '$COMMIT_MESSAGE' ]; then
+        if [ -n "$COMMIT_MESSAGE" ]; then
           echo -e "Commig message is already set to\n\n$COMMIT_MESSAGE"
           echo 'COMMIT_MESSAGE=$COMMIT_MESSAGE' >> $GITHUB_ENV
 
