@@ -57,7 +57,7 @@ runs:
       run: curl -fsSL "{{base_url}}/replace.ts" | time bun -
 
     - name: Set Commit Message
-      id: set_commit_message
+      shell: bash
       run: |
         if [ -z "${{ inputs.commit-message }}" ]; then
           echo "COMMIT_MESSAGE=Replaced ${{ inputs.match }} with ${{ inputs.replace }} in ${{ inputs.branch }}" >> $GITHUB_ENV
@@ -66,6 +66,7 @@ runs:
         fi
 
     - name: Stage changes
+      shell: bash
       run: git add .
 
     - name: Commit changes
